@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Dã Ngoại</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Hiệu ứng mờ dần */
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        .fade-out { animation: fadeOut 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-teal-600 text-white shadow-md sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center">
+                <i class="fa-solid fa-tree text-2xl mr-2"></i> Picnic Team
+            </h1>
+            <div class="flex gap-1 bg-teal-700 p-1 rounded-lg">
+                <button onclick="switchTab('register')" id="tab-register" class="px-4 py-1.5 text-sm rounded bg-white text-teal-700 font-bold transition-all shadow-sm">Đăng ký</button>
+                <button onclick="switchTab('admin')" id="tab-admin" class="px-4 py-1.5 text-sm rounded text-teal-50 hover:bg-teal-600 font-medium transition-all">Quản lý</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Thông báo nổi (Toast) -->
+    <div id="toast" class="fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white shadow-lg opacity-0 hidden transition-opacity duration-300 z-50"></div>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        
+        <!-- ================= PHẦN ĐĂNG KÝ ================= -->
+        <section id="section-register" class="block fade-in">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 max-w-lg mx-auto">
+                
+                <div id="form-container">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-extrabold text-slate-800">Phiếu Tham Gia Dã Ngoại</h2>
+                        <p class="text-slate-500 text-sm mt-1">Vui lòng điền thông tin để ban tổ chức chuẩn bị chu đáo nhất.</p>
+                    </div>
+                    
+                    <form id="registrationForm" onsubmit="submitForm(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Họ và tên <span class="text-red-500">*</span></label>
+                            <input type="text" id="reg-name" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none transition-all" placeholder="VD: Nguyễn Văn A">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Phòng ban / Đơn vị <span class="text-red-500">*</span></label>
+                            <input type="text" id="reg-dept" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none transition-all" placeholder="VD: Phòng Marketing">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Số điện thoại <span class="text-red-500">*</span></label>
+                            <input type="tel" id="reg-phone" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none transition-all" placeholder="09xxxxxxxx">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Ghi chú thêm</label>
+                            <textarea id="reg-note" rows="2" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none transition-all" placeholder="Dị ứng thức ăn, ăn chay, mang theo người thân..."></textarea>
+                        </div>
+                        
+                        <button type="submit" id="submitBtn" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-lg hover:bg-teal-700 active:transform active:scale-95 transition-all flex justify-center items-center shadow-md">
+                            <span>Gửi Đăng Ký</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Vùng hiển thị thành công -->
+                <div id="successMessage" class="hidden text-center fade-in py-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-100 mb-4">
+                        <i class="fa-solid fa-check text-3xl text-teal-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Đăng ký thành công!</h3>
+                    <p class="text-slate-500 mb-4">Thông tin của bạn đã được ghi nhận.</p>
+                    
+                    <div id="greetingText" class="inline-block px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-medium mb-6 transition-opacity duration-500">
+                        Hẹn gặp bạn tại buổi dã ngoại nhé! 👋
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 inline-block">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ChaoMungDaNgoai" alt="QR Code" class="w-28 h-28 mx-auto rounded-lg">
+                        <p class="text-xs text-slate-500 mt-3 font-medium">Quét mã Zalo nhóm dã ngoại</p>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <button onclick="resetForm()" class="text-teal-600 font-semibold hover:underline text-sm">Đăng ký thêm người khác</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PHẦN ADMIN ================= -->
+        <section id="section-admin" class="hidden fade-in">
+            
+            <!-- Khung Đăng nhập Admin -->
+            <div id="admin-login" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-sm mx-auto mt-8">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 mb-3">
+                        <i class="fa-solid fa-lock text-xl text-slate-600"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800">Quản trị viên</h2>
+                </div>
+                
+                <input type="password" id="admin-pwd" placeholder="Nhập mật khẩu (123456)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-400 outline-none mb-2 transition-all">
+                <p id="login-error" class="text-red-500 text-sm hidden mb-4 text-center">Sai mật khẩu!</p>
+                
+                <button onclick="checkAdmin()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-900 mt-2 transition-all">Đăng nhập</button>
+            </div>
+
+            <!-- Dashboard Admin -->
+            <div id="admin-dashboard" class="hidden space-y-6">
+                
+                <!-- Cài đặt API -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold mb-3 flex items-center text-slate-800">
+                        <i class="fa-solid fa-database text-teal-600 mr-2"></i> Cấu hình Google Sheets
+                    </h3>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input type="text" id="api-url" class="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm text-slate-600 font-mono" placeholder="URL Google Apps Script">
+                        <button onclick="saveSettings()" class="bg-slate-800 text-white px-6 py-2 rounded-lg hover:bg-slate-900 font-semibold whitespace-nowrap transition-all shadow-sm">Lưu cấu hình</button>
+                    </div>
+                </div>
+
+                <!-- Danh sách đăng ký -->
+                <div class="bg-white p-0 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-5 md:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-users-viewfinder text-teal-600 mr-2"></i> Danh sách tham gia</h3>
+                            <p class="text-sm text-slate-500 mt-1">Dữ liệu được đồng bộ trực tiếp từ Google Sheets.</p>
+                        </div>
+                        <button onclick="loadData()" class="bg-teal-50 text-teal-700 px-4 py-2 rounded-lg hover:bg-teal-100 text-sm font-bold transition-all border border-teal-200 flex items-center">
+                            <i class="fa-solid fa-rotate mr-2" id="refresh-icon"></i> Làm mới
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 text-sm uppercase tracking-wider">
+                                    <th class="p-4 font-semibold border-b border-slate-200">Thời gian</th>
+                                    <th class="p-4 font-semibold border-b border-slate-200">Họ và tên</th>
+                                    <th class="p-4 font-semibold border-b border-slate-200">Phòng ban</th>
+                                    <th class="p-4 font-semibold border-b border-slate-200">Số điện thoại</th>
+                                    <th class="p-4 font-semibold border-b border-slate-200">Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="text-sm divide-y divide-slate-100">
+                                <tr><td colspan="5" class="p-8 text-center text-slate-500">Bấm "Làm mới" để tải dữ liệu.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // URL mặc định của người dùng
+        const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbxUeNxaJLcUJUXo_wroVfGbYz-mneR24syyok7c03TgK9_d--JQowMcSTXhA6AfwDFN/exec";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedUrl = localStorage.getItem("picnicScriptUrl") || DEFAULT_URL;
+            document.getElementById("api-url").value = savedUrl;
+        });
+
+        // Hàm hiển thị thông báo góc màn hình
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white font-medium shadow-xl transition-all duration-300 z-50 ${type === 'success' ? 'bg-teal-600' : 'bg-red-500'}`;
+            
+            // Xóa class ẩn để hiện thị
+            toast.classList.remove('hidden');
+            // Cần một chút trễ để CSS transition nhận diện sự thay đổi từ hidden sang block
+            setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-4'), 10);
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        // Chuyển đổi Tab (Đăng ký / Admin)
+        function switchTab(tab) {
+            const regSection = document.getElementById('section-register');
+            const adminSection = document.getElementById('section-admin');
+            const tabReg = document.getElementById('tab-register');
+            const tabAdmin = document.getElementById('tab-admin');
+
+            if (tab === 'register') {
+                regSection.classList.remove('hidden');
+                adminSection.classList.add('hidden');
+                tabReg.className = "px-4 py-1.5 text-sm rounded bg-white text-teal-700 font-bold transition-all shadow-sm";
+                tabAdmin.className = "px-4 py-1.5 text-sm rounded text-teal-50 hover:bg-teal-600 font-medium transition-all";
+            } else {
+                adminSection.classList.remove('hidden');
+                regSection.classList.add('hidden');
+                tabAdmin.className = "px-4 py-1.5 text-sm rounded bg-white text-teal-700 font-bold transition-all shadow-sm";
+                tabReg.className = "px-4 py-1.5 text-sm rounded text-teal-50 hover:bg-teal-600 font-medium transition-all";
+            }
+        }
+
+        // Lưu cài đặt URL
+        function saveSettings() {
+            const url = document.getElementById("api-url").value;
+            if(!url.includes("script.google.com")) {
+                showToast("URL không hợp lệ. Vui lòng nhập link Google Apps Script.", "error");
+                return;
+            }
+            localStorage.setItem("picnicScriptUrl", url);
+            showToast("Đã lưu cấu hình kết nối!");
+            loadData(); // Tải lại data với link mới
+        }
+
+        function getScriptUrl() {
+            return document.getElementById("api-url").value || DEFAULT_URL;
+        }
+
+        // Gửi dữ liệu Đăng ký
+        async function submitForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Đang xử lý...';
+            btn.disabled = true;
+            btn.classList.add('opacity-80');
+
+            const data = {
+                name: document.getElementById("reg-name").value,
+                department: document.getElementById("reg-dept").value,
+                phone: document.getElementById("reg-phone").value,
+                note: document.getElementById("reg-note").value
+            };
+
+            try {
+                // Sử dụng no-cors không lấy được response chuẩn, nên dùng fetch thông thường (cần Apps script cấp quyền doPost)
+                await fetch(getScriptUrl(), {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(data)
+                });
+
+                // Chuyển đổi giao diện sang báo Thành công
+                document.getElementById("form-container").classList.add("hidden");
+                const successDiv = document.getElementById("successMessage");
+                const greeting = document.getElementById("greetingText");
+                
+                successDiv.classList.remove("hidden");
+                
+                // Yêu cầu: Dòng chữ Hẹn gặp biến mất sau 3 giây
+                setTimeout(() => {
+                    greeting.classList.add("fade-out");
+                    setTimeout(() => { greeting.style.display = 'none'; }, 500); // Ẩn hoàn toàn khỏi DOM
+                }, 3000);
+
+            } catch (error) {
+                showToast("Không thể kết nối máy chủ. Vui lòng thử lại!", "error");
+                console.error(error);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-80');
+            }
+        }
+
+        // Đặt lại form để đăng ký người tiếp theo
+        function resetForm() {
+            document.getElementById("registrationForm").reset();
+            document.getElementById("form-container").classList.remove("hidden");
+            document.getElementById("successMessage").classList.add("hidden");
+            
+            // Khôi phục dòng chữ chào mừng cho lần đăng ký sau
+            const greeting = document.getElementById("greetingText");
+            greeting.style.display = 'inline-block';
+            greeting.classList.remove("fade-out");
+        }
+
+        // Đăng nhập Admin
+        function checkAdmin() {
+            const pwd = document.getElementById("admin-pwd").value;
+            const errorMsg = document.getElementById("login-error");
+            
+            if (pwd === "123456") {
+                document.getElementById("admin-login").classList.add("hidden");
+                document.getElementById("admin-dashboard").classList.remove("hidden");
+                errorMsg.classList.add("hidden");
+                loadData();
+            } else {
+                errorMsg.classList.remove("hidden");
+            }
+        }
+
+        // Tải danh sách từ Google Sheets
+        async function loadData() {
+            const tbody = document.getElementById("table-body");
+            const refreshIcon = document.getElementById("refresh-icon");
+            
+            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fa-solid fa-circle-notch fa-spin text-teal-500 text-2xl mb-2"></i><br>Đang tải dữ liệu...</td></tr>';
+            refreshIcon.classList.add("fa-spin");
+            
+            try {
+                const response = await fetch(getScriptUrl());
+                const rows = await response.json();
+                
+                if (!rows || rows.length <= 1) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">Chưa có ai đăng ký tham gia.</td></tr>';
+                    refreshIcon.classList.remove("fa-spin");
+                    return;
+                }
+
+                let html = '';
+                // Duyệt ngược để hiển thị người mới đăng ký lên đầu, bỏ qua dòng 1 (tiêu đề)
+                for (let i = rows.length - 1; i >= 1; i--) {
+                    const row = rows[i];
+                    
+                    // Format thời gian
+                    let timeStr = row[0];
+                    if(timeStr) {
+                        const d = new Date(timeStr);
+                        if(!isNaN(d)) {
+                            timeStr = d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' ' + d.toLocaleDateString('vi-VN');
+                        }
+                    }
+                    
+                    html += `
+                    <tr class="hover:bg-teal-50/50 transition-colors">
+                        <td class="p-4 text-xs text-slate-500 whitespace-nowrap">${timeStr || '-'}</td>
+                        <td class="p-4 font-bold text-slate-800">${row[1] || '-'}</td>
+                        <td class="p-4 text-slate-600">${row[2] || '-'}</td>
+                        <td class="p-4 font-mono text-slate-600">${row[3] || '-'}</td>
+                        <td class="p-4 text-slate-500 max-w-xs truncate" title="${row[4] || ''}">${row[4] || ''}</td>
+                    </tr>`;
+                }
+                tbody.innerHTML = html;
+
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">
+                    <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i><br>
+                    Lỗi kết nối hoặc cấu hình Google Apps Script chưa đúng.<br>
+                    Vui lòng đảm bảo link Script đã được Deploy (Anyone).
+                </td></tr>`;
+                console.error(error);
+            } finally {
+                refreshIcon.classList.remove("fa-spin");
+            }
+        }
+    </script>
+</body>
+</html>
